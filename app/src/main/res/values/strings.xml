@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">WebApp</string>
+    <string name="show">Show</string>
+    <string name="add">Add</string>
 </resources>
