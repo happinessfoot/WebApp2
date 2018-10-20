@@ -37,11 +37,8 @@ public class ShowActivity extends AppCompatActivity {
 
 }
 class LoadAllProducts extends AsyncTask<String,String,String> {
-    @Override
-    protected void onPreExecute()
-    {
 
-    }
+    private String resultJSON="";
     @Override
     protected String doInBackground(String... args) {
         StringBuilder result = new StringBuilder();
@@ -59,6 +56,7 @@ class LoadAllProducts extends AsyncTask<String,String,String> {
                 result.append(line);
                 Log.d("TAG",line);
             }
+            resultJSON = result.toString();
 
         }catch( Exception e) {
             e.printStackTrace();
@@ -69,10 +67,28 @@ class LoadAllProducts extends AsyncTask<String,String,String> {
         }
 
 
-        return result.toString();
+        return resultJSON;
     }
     protected void onPostExecute(String result)
     {
-
+        super.onPostExecute(result);
+        Log.d("postExecute", "COME IN");
+        try {
+            JSONObject jsonObject = new JSONObject(result);
+            JSONArray products = jsonObject.getJSONArray("products");
+            Log.d("JSON", " "+products.length());
+            for (int i = 0; i < products.length(); i++) {
+                JSONObject product = products.getJSONObject(i);
+                String id = product.getString("pid");
+                String name = product.getString("name");
+                String price = product.getString("price");
+                Log.d("JSON", id);
+                Log.d("JSON", name);
+                Log.d("JSON", price);
+            }
+        }catch(JSONException e)
+        {
+            Log.d("JSONException",e.getMessage());
+        }
     }
 }
