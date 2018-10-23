@@ -1,10 +1,13 @@
 package com.example.rusli_000.webapp;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import java.io.BufferedInputStream;
@@ -27,10 +30,22 @@ public class ProductEditActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_product_edit);
-        name = (TextInputLayout) findViewById(R.id.name);
+        Intent intent = getIntent();
         pid = (TextView)findViewById(R.id.pid);
-        pid.getText();
+        pid.setText(intent.getStringExtra("pid"));
+        Log.d("PIDTEXT",pid.getText().toString());
 
+    }
+    public void OnButtonClick(View v)
+    {
+        switch(v.getId())
+        {
+            case R.id.saveBtn:
+            {
+                Log.d("SAVEBTN",pid.getText().toString());
+                break;
+            }
+        }
     }
     class GetProductDetails extends AsyncTask<String,String,String>
     {

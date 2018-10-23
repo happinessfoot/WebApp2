@@ -56,7 +56,7 @@ public class ShowActivity extends AppCompatActivity {
                 // getting values from selected ListItem
                 String pid = ((TextView) view.findViewById(R.id.pid)).getText()
                         .toString();
-
+                Log.d("PIDMAIN",pid);
                 // Запускаем новый intent который покажет нам Activity
                 Intent in = new Intent(getApplicationContext(), ProductEditActivity.class);
                 // отправляем pid в следующий activity
