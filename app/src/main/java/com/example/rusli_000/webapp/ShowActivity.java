@@ -71,6 +71,7 @@ public class ShowActivity extends AppCompatActivity {
     }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d("ACTIVITY","ActivityResult");
         super.onActivityResult(requestCode, resultCode, data);
         // если результующий код равен 100
         if (resultCode == 100) {

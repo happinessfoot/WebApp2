@@ -16,15 +16,20 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 
 public class ProductEditActivity extends AppCompatActivity {
@@ -55,9 +60,47 @@ public class ProductEditActivity extends AppCompatActivity {
         {
             case R.id.saveBtn:
             {
-                Log.d("SAVEBTN",pid.getText().toString());
+                Log.d("SAVEBTN","PRESSED "+name.getText());
+                new SaveProductDetails().execute();
                 break;
             }
+        }
+    }
+    class SaveProductDetails extends AsyncTask<String,String,String>
+    {
+        @Override
+        protected String doInBackground(String... strings) {
+            URL url = null;
+            StringBuilder result = new StringBuilder();
+            HttpURLConnection urlConnection = null;
+            try
+            {
+
+                String params = "pid="+pidText+"&name="+name.getText()+"&price="+price.getText()+"&description="+description.getText();
+                Log.d("PARAMS",params);
+                byte[] postData;
+                url = new URL("https://ruslik2014.000webhostapp.com/update_product.php");
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("POST");
+                connection.setDoOutput(true);
+                DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
+                outputStream.writeBytes(params);
+                outputStream.flush();
+                outputStream.close();
+                BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                StringBuilder sb = new StringBuilder();
+                String line = "";
+                while ((line = in.readLine()) != null){
+                    sb.append(line);
+                }
+                in.close();
+                Log.d("SB",sb.toString());
+
+            }catch (Exception e)
+            {
+                Log.d("SaveExceptionUrl",e.getMessage());
+            }
+            return null;
         }
     }
     class GetProductDetails extends AsyncTask<String,String,String>
