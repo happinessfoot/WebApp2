@@ -2,6 +2,7 @@ package com.example.rusli_000.webapp;
 
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -9,6 +10,10 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Switch;
 import android.widget.TextView;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -20,12 +25,16 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.util.HashMap;
 
 public class ProductEditActivity extends AppCompatActivity {
 
     String resultJSON = "";
-    TextInputLayout name;
+    TextInputEditText name;
+    TextInputEditText price;
+    TextInputEditText description;
     TextView pid;
+    String pidText;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,7 +42,11 @@ public class ProductEditActivity extends AppCompatActivity {
         Intent intent = getIntent();
         pid = (TextView)findViewById(R.id.pid);
         pid.setText(intent.getStringExtra("pid"));
-        Log.d("PIDTEXT",pid.getText().toString());
+        pidText = pid.getText().toString();
+        name = (TextInputEditText) findViewById(R.id.name);
+        price = (TextInputEditText) findViewById(R.id.priceProduct);
+        description = (TextInputEditText) findViewById(R.id.descriptionProduct);
+        new GetProductDetails().execute();
 
     }
     public void OnButtonClick(View v)
@@ -49,23 +62,17 @@ public class ProductEditActivity extends AppCompatActivity {
     }
     class GetProductDetails extends AsyncTask<String,String,String>
     {
-        protected void OnPreExecute(){
-
-        }
         @Override
         protected String doInBackground(String[] params)
         {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                        int success;
                         URL url = null;
                         StringBuilder result = new StringBuilder();
                         HttpURLConnection urlConnection = null;
                         try{
-                            url = new URL("https://ruslik2014.000webhostapp.com/get_product.php?pid="+R.id.pid);
-                            urlConnection.setRequestMethod("GET");
+                            url = new URL("https://ruslik2014.000webhostapp.com/get_product.php?pid="+pidText);
+
                         urlConnection = (HttpURLConnection) url.openConnection();
+                            //urlConnection.setRequestMethod("GET");
                             InputStream in = new BufferedInputStream(urlConnection.getInputStream());
 
 
@@ -76,25 +83,35 @@ public class ProductEditActivity extends AppCompatActivity {
                                 result.append(line);
                                 Log.d("EDIT", line);
                             }
-                        }catch (MalformedURLException e)
-                        {
-                            Log.d("EDIT",e.getMessage());
-                        }catch (ProtocolException e)
-                        {
-                            Log.d("EDIT",e.getMessage());
-                        }catch (IOException e)
+                            result.toString();
+                            resultJSON = result.toString();
+                        }catch (Exception e)
                         {
                             Log.d("EDIT",e.getMessage());
                         }
-                        resultJSON = result.toString();
+            urlConnection.disconnect();
 
-                }
-            });
+
+            Log.d("ResultJSON",resultJSON);
             return resultJSON;
         }
-        protected void OnPostExecute()
+        protected void onPostExecute(String result)
         {
+            Log.d("postExecute", "COME IN");
 
+            try {
+                JSONObject jsonObject = new JSONObject(resultJSON).getJSONArray("product").getJSONObject(0);
+                String productName = jsonObject.getString("name");
+                String priceName = jsonObject.getString("price");
+                String descriptionName = jsonObject.getString("description");
+                name.setText(productName);
+                price.setText(priceName);
+                description.setText(descriptionName);
+
+            }catch(JSONException e)
+            {
+                Log.d("JSONException",e.getMessage());
+            }
         }
     }
 }
