@@ -1,10 +1,14 @@
 package com.example.rusli_000.webapp;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.security.NetworkSecurityPolicy;
+import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -130,6 +134,14 @@ public class ShowActivity extends AppCompatActivity {
                     resultJSON = text;
                     return resultJSON;
                 }catch (IOException ex){
+                    AlertDialog.Builder builder = new AlertDialog.Builder(ShowActivity.this);
+                    builder.setTitle("Невозможно подключиться к серверу!").setMessage("Не удалось открыть локальную базу, пожалуйста подключитесь к интернету и сохраните базу")
+                            .setCancelable(false).setNegativeButton("ОК", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    });
                     Log.d("IOExcep",ex.getMessage());
                 }
                 Log.d("TAG",e.getMessage());
