@@ -18,6 +18,7 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -46,6 +47,7 @@ public class ShowActivity extends AppCompatActivity {
     static ArrayList<HashMap<String, String>> productsList;
     ListView lvMain;
     private ProgressDialog pDialog;
+    int success = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -134,14 +136,7 @@ public class ShowActivity extends AppCompatActivity {
                     resultJSON = text;
                     return resultJSON;
                 }catch (IOException ex){
-                    AlertDialog.Builder builder = new AlertDialog.Builder(ShowActivity.this);
-                    builder.setTitle("Невозможно подключиться к серверу!").setMessage("Не удалось открыть локальную базу, пожалуйста подключитесь к интернету и сохраните базу")
-                            .setCancelable(false).setNegativeButton("ОК", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.cancel();
-                        }
-                    });
+                    success = 1;
                     Log.d("IOExcep",ex.getMessage());
                 }
                 Log.d("TAG",e.getMessage());
@@ -155,6 +150,22 @@ public class ShowActivity extends AppCompatActivity {
         }
         protected void onPostExecute(String result)
         {
+            if(success==1)
+            {
+                AlertDialog.Builder builder = new AlertDialog.Builder(ShowActivity.this);
+                builder.setTitle("Невозможно подключиться к интернету!")
+                        .setMessage("Чтобы работать локально, сохраните базу, а затем попробуйте снова").setCancelable(false)
+                        .setNegativeButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                            }
+                        });
+                AlertDialog alert = builder.create();
+                alert.show();
+                pDialog.dismiss();
+                return;
+            }
             super.onPostExecute(result);
             Log.d("postExecute", "COME IN");
 
