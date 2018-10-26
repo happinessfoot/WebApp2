@@ -45,22 +45,28 @@ public class MainActivity extends AppCompatActivity {
         switch (v.getId()) {
             case R.id.btnShow:
             {
-                Log.d("FILE",""+R.id.saveBtn);
+                Log.d("FILE","button show pressed");
                 Intent intent = new Intent(this,ShowActivity.class);
                 startActivity(intent);
                 break;
             }
             case R.id.saveBtn:
             {
-                Log.d("FILE",""+R.id.saveBtn);
+                Log.d("FILE","button save pressed");
                 new LoadAllProducts().execute();
-
                 break;
             }
             case R.id.showFileBtn:
             {
-                Log.d("FILE",""+R.id.saveBtn);
+                Log.d("FILE","show file button");
                 openText();
+                break;
+            }
+            case R.id.add:
+            {
+                Log.d("FILE","add button");
+                Intent intent = new Intent(this,ProductAddActivity.class);
+                startActivity(intent);
                 break;
             }
 

@@ -1,5 +1,6 @@
 package com.example.rusli_000.webapp;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -40,6 +41,7 @@ public class ShowActivity extends AppCompatActivity {
 
     static ArrayList<HashMap<String, String>> productsList;
     ListView lvMain;
+    private ProgressDialog pDialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -87,6 +89,16 @@ public class ShowActivity extends AppCompatActivity {
 
     class LoadAllProducts extends AsyncTask<String,String,String> {
         private String resultJSON="";
+
+        @Override
+        protected void onPreExecute() {
+            pDialog = new ProgressDialog(ShowActivity.this);
+            pDialog.setMessage("Загружаем список...");
+            pDialog.setIndeterminate(false);
+            pDialog.setCancelable(true);
+            pDialog.show();
+        }
+
         @Override
         protected String doInBackground(String... args) {
             StringBuilder result = new StringBuilder();
@@ -160,6 +172,7 @@ public class ShowActivity extends AppCompatActivity {
                     R.layout.list_item, new String[] {"pid","name"},
                     new int[] {R.id.pid,R.id.name});
             lvMain.setAdapter(adapter);
+            pDialog.dismiss();
         }
     }
 
