@@ -7,6 +7,7 @@ import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.widget.Switch;
@@ -51,6 +52,7 @@ public class ProductEditActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_product_edit);
+
         Intent intent = getIntent();
         pid = (TextView)findViewById(R.id.pid);
         pid.setText(intent.getStringExtra("pid"));
@@ -60,6 +62,7 @@ public class ProductEditActivity extends AppCompatActivity {
         name = (TextInputEditText) findViewById(R.id.name);
         price = (TextInputEditText) findViewById(R.id.priceProduct);
         description = (TextInputEditText) findViewById(R.id.descriptionProduct);
+        price.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_NUMBER_FLAG_SIGNED);
         new GetProductDetails().execute();
     }
     public void OnButtonClick(View v)
