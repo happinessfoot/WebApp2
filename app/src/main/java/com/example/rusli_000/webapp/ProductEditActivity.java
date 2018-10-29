@@ -183,38 +183,81 @@ public class ProductEditActivity extends AppCompatActivity {
         }
         @Override
         protected String doInBackground(String... strings) {
-            URL url = null;
-            StringBuilder result = new StringBuilder();
-            HttpURLConnection urlConnection = null;
-            try
-            {
+            if(success == 0) {
+                URL url = null;
+                StringBuilder result = new StringBuilder();
+                HttpURLConnection urlConnection = null;
+                try {
 
-                String params = "pid="+pidText+"&name="+name.getText()+"&price="+price.getText()+"&description="+description.getText();
-                Log.d("PARAMS",params);
-                byte[] postData;
-                url = new URL("https://ruslik2014.000webhostapp.com/update_product.php");
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("POST");
-                connection.setDoOutput(true);
-                DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
-                outputStream.writeBytes(params);
-                outputStream.flush();
-                outputStream.close();
-                BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                StringBuilder sb = new StringBuilder();
-                String line = "";
-                while ((line = in.readLine()) != null){
-                    sb.append(line);
+                    String params = "pid=" + pidText + "&name=" + name.getText() + "&price=" + price.getText() + "&description=" + description.getText();
+                    Log.d("PARAMS", params);
+                    byte[] postData;
+                    url = new URL("https://ruslik2014.000webhostapp.com/update_product.php");
+                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                    connection.setRequestMethod("POST");
+                    connection.setDoOutput(true);
+                    DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
+                    outputStream.writeBytes(params);
+                    outputStream.flush();
+                    outputStream.close();
+                    BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                    StringBuilder sb = new StringBuilder();
+                    String line = "";
+                    while ((line = in.readLine()) != null) {
+                        sb.append(line);
+                    }
+                    in.close();
+                    Log.d("SB", sb.toString());
+                    Intent i = getIntent();
+                    setResult(100, i);
+
+
+                } catch (Exception e) {
+                    Log.d("SaveExceptionUrl", e.getMessage());
                 }
-                in.close();
-                Log.d("SB",sb.toString());
-                Intent i = getIntent();
-                setResult(100,i);
-
-
-            }catch (Exception e)
+            }else
             {
-                Log.d("SaveExceptionUrl",e.getMessage());
+                FileInputStream fin = null;
+                try {
+                    fin = openFileInput("products.json");
+                    byte[] bytes = new byte[fin.available()];
+                    fin.read(bytes);
+                    String text = new String (bytes);
+                    Log.d("TEXT",text);
+                    resultJSON = text;
+                    JSONObject obj = new JSONObject(resultJSON);
+                    JSONArray array = obj.getJSONArray("products");
+                    JSONObject object=null;
+                    JSONArray array2 = new JSONArray();
+                    JSONArray tmpArray = new JSONArray();
+                    int i;
+                    for( i = 0; i <array.length(); i++)
+                    {
+                        if(!array.getJSONObject(i).getString("pid").equals(pidText))
+                        {
+                            array2.put(array.getJSONObject(i));
+                        }else
+                        {
+                            JSONObject tmp = new JSONObject();
+                            tmp.put("pid",pidText);
+                            tmp.put("name",name.getText());
+                            tmp.put("price",price.getText());
+                            tmp.put("description",description.getText());
+                            array2.put(tmp);
+                        }
+                    }
+                    JSONObject newObj = new JSONObject();
+                    newObj.put("products",array2);
+                    resultJSON=newObj.toString();
+                    Log.d("ResultFileJson",resultJSON);
+                    FileOutputStream fos = null;
+                    fos = openFileOutput("products.json", MODE_PRIVATE);
+                    fos.write(resultJSON.getBytes());
+                    Intent inten = getIntent();
+                    setResult(100, inten);
+                }catch (Exception ex){
+                    Log.d("IOExcep",ex.getMessage());
+                }
             }
             return null;
         }
