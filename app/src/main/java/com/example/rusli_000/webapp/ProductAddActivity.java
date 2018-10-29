@@ -9,8 +9,14 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -87,6 +93,35 @@ public class ProductAddActivity extends AppCompatActivity {
 
             }catch (Exception e)
             {
+                FileInputStream fin = null;
+                String resultJSON = "";
+                try {
+                    fin = openFileInput("products.json");
+                    byte[] bytes = new byte[fin.available()];
+                    fin.read(bytes);
+                    String text = new String (bytes);
+                    Log.d("TEXT",text);
+                    resultJSON = text;
+                    JSONObject jsonObject = new JSONObject(resultJSON);
+                    JSONArray array = jsonObject.getJSONArray("products");
+                    JSONObject object = new JSONObject();
+                    object.put("pid",(array.length()+1)+"");
+                    object.put("name",""+name.getText()+"");
+                    object.put("price",""+price.getText()+"");
+                    object.put("description",description.getText());
+                    array.put(array.length(),object);
+                    jsonObject.remove("products");
+                    jsonObject.put("products",array);
+                    Log.d("ARRAYFILELENGTH",array.length()+"");
+                    Log.d("ARRAYFILELENGTH",array.toString()+"");
+                    Log.d("jsonObj",jsonObject.toString());
+                    resultJSON = jsonObject.toString();
+                    FileOutputStream fos = null;
+                    fos = openFileOutput("products.json", MODE_PRIVATE);
+                    fos.write(resultJSON.getBytes());
+                }catch (Exception ex){
+                    Log.d("Excep",ex.getMessage());
+                }
                 Log.d("AddException",e.getMessage());
             }
             return null;

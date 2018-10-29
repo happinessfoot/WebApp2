@@ -3,8 +3,11 @@ package com.example.rusli_000.webapp;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.security.NetworkSecurityPolicy;
@@ -52,7 +55,8 @@ public class ShowActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_show);
-        String url = "http://localhost/webapps/get_all_product.php";
+        HttpURLConnection urlConnection;
+        Log.d("tagSuc",success+"");
         productsList = new ArrayList<HashMap<String, String>>();
         lvMain = (ListView) findViewById(R.id.list);
         new LoadAllProducts().execute();
@@ -69,7 +73,7 @@ public class ShowActivity extends AppCompatActivity {
                 Intent in = new Intent(getApplicationContext(), ProductEditActivity.class);
                 // отправляем pid в следующий activity
                 in.putExtra("pid", pid);
-
+                in.putExtra("check_net",success);
                 // запуская новый Activity ожидаем ответ обратно
                 startActivityForResult(in, 100);
             }
@@ -134,7 +138,7 @@ public class ShowActivity extends AppCompatActivity {
                     String text = new String (bytes);
                     Log.d("TEXT",text);
                     resultJSON = text;
-                    return resultJSON;
+                    success = 2;
                 }catch (IOException ex){
                     success = 1;
                     Log.d("IOExcep",ex.getMessage());
