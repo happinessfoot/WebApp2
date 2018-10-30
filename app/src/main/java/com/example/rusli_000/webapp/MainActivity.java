@@ -20,6 +20,7 @@ import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -37,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
     Button saveBtn;
     int success = 0;
     private ProgressDialog pDialog;
+    boolean checkLoadFile = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,7 +76,97 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
                 break;
             }
+            case R.id.load:
+            {
+                Log.d("FILE","load button");
+                new LoadFile().execute();
+                break;
+            }
 
+        }
+    }
+    class LoadFile extends AsyncTask<String,String,String>
+    {
+        @Override
+        protected void onPreExecute() {
+            pDialog = new ProgressDialog(MainActivity.this);
+            pDialog.setMessage("Загружаем...");
+            pDialog.setIndeterminate(false);
+            pDialog.setCancelable(true);
+            pDialog.show();
+        }
+
+        @Override
+        protected String doInBackground(String... strings) {
+            String resultFileText = "";
+            checkLoadFile = false;
+            FileInputStream fin = null;
+            try {
+                fin = openFileInput("products.json");
+                byte[] bytes = new byte[fin.available()];
+                StringBuilder fileContent = new StringBuilder("");
+                int n;
+                while((n = fin.read(bytes))!=-1)
+                {
+                    fileContent.append(n);
+                }
+                String text = new String (bytes);
+                JSONArray array = new JSONObject(text).getJSONArray("products");
+                resultFileText = array.toString();
+
+            }catch (Exception e){
+                Log.d("IOExcep",e.getMessage());
+                return  null;
+            }
+            URL url = null;
+            StringBuilder result = new StringBuilder();
+            HttpURLConnection urlConnection = null;
+            try
+            {
+                String params = "products="+resultFileText;
+                Log.d("PARAMS",params);
+                byte[] postData;
+                url = new URL("https://ruslik2014.000webhostapp.com/create_table_product.php");
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("POST");
+                connection.setDoOutput(true);
+                DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
+                outputStream.writeBytes(params);
+                outputStream.flush();
+                outputStream.close();
+                BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                StringBuilder sb = new StringBuilder();
+                String line = "";
+                while ((line = in.readLine()) != null){
+                    sb.append(line);
+                }
+                in.close();
+                Log.d("SB",sb.toString());
+            }catch (Exception e)
+            {
+                checkLoadFile = true;
+                Log.d("ex",e.getMessage());
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            if(checkLoadFile)
+            {
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setTitle("Невозможно подключиться к интернету!")
+                        .setMessage("Подключитесь к интернету, чтобы загрузить базу на сервер").setCancelable(false)
+                        .setNegativeButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                            }
+                        });
+                AlertDialog alert = builder.create();
+                alert.show();
+            }
+            pDialog.dismiss();
         }
     }
     public void openText(){
@@ -83,9 +175,15 @@ public class MainActivity extends AppCompatActivity {
         try {
             fin = openFileInput("products.json");
             byte[] bytes = new byte[fin.available()];
-            fin.read(bytes);
+            StringBuilder fileContent = new StringBuilder("");
+            int n;
+            while((n = fin.read(bytes))!=-1)
+            {
+                fileContent.append(n);
+            }
             String text = new String (bytes);
             Log.d("TEXT",text);
+
         }catch (IOException e){
             Log.d("IOExcep",e.getMessage());
         }
@@ -160,19 +258,18 @@ public class MainActivity extends AppCompatActivity {
             }
             if(success==1)
             {
-                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                builder.setTitle("Невозможно подключиться к интернету!")
-                        .setMessage("Чтобы сохранить базу, нужно подключение к интернету").setCancelable(false)
-                        .setNegativeButton("OK", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.cancel();
-                            }
-                        });
-                AlertDialog alert = builder.create();
-                alert.show();
-                pDialog.dismiss();
-                return;
+                try {
+                    JSONObject object = new JSONObject();
+
+                    JSONArray array = new JSONArray();
+                    JSONObject obj2 = new JSONObject();
+                    object.put("products", array);
+                    Log.d("TESTJSON", object.toString());
+                    result = object.toString();
+                }catch (Exception e)
+                {
+                    Log.d("EXCEP",e.getMessage());
+                }
             }
 
             Log.d("postExecute", "COME IN");
